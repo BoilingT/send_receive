@@ -62,7 +62,8 @@ int _stop_server(server_t server)
         return 0;
     }
 
-    server_stop(server);
+    if (is_listening(server)) server_stop(server);
+
     pthread_join(s_shared.server_pid, NULL);
     return 1;
 }
@@ -192,7 +193,7 @@ void init()
 
     _stop(server, clients);
 
-    connection_destroy(server);
+    if (!is_offline(server)) connection_destroy(server);
 
     free(s_shared.client_pids);
     pthread_mutex_destroy(&s_shared.mutex);

@@ -36,7 +36,7 @@ connection_t connection_init(short port_nr)
 
 int connection_stop(connection_t connection)
 {
-    if (is_offline(connection)) return 0;
+    if (!is_listening(connection)) return 0;
 
     if (shutdown(connection->fd, SHUT_RDWR) == -1)
     {
@@ -51,7 +51,7 @@ int connection_stop(connection_t connection)
 
     memset(&connection->addr_in, 0, sizeof(connection->addr_in));
 
-    connection->state = OFFLINE;
+    connection->state = READY;
 
     return 1;
 }
@@ -67,6 +67,8 @@ int connection_destroy(connection_t connection)
     }
 
     close(connection->fd);
+
+    connection->state = OFFLINE;
 
     log_info("Server: Socket (%d) has been closed", connection->fd);
 
