@@ -1,0 +1,9 @@
+*.vscode
+*.exe
+*.docx
+*.pdf
+*.tmp
+*.zip
+*.rar
+./Lectures/*
+*.o
