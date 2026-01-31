@@ -6,7 +6,7 @@
 
 struct s_shared
 {
-    server_t        server;
+    connection_t    server;
     pthread_mutex_t mutex;
     pthread_t       server_pid;
     pthread_t      *client_pids;
@@ -15,8 +15,8 @@ struct s_shared
 
 struct s_args
 {
-    server_t server;
-    client_t client;
+    connection_t server;
+    connection_t client;
 };
 
 void *_server_thread(void *args)
@@ -29,8 +29,8 @@ void *_server_thread(void *args)
         pthread_mutex_unlock(&s_shared.mutex);
     }
     log_debug("Server Thread Start");
-    client_t client = (client_t)calloc(1, sizeof(client));
-    while (connection_accept((server_t)args, client))
+    connection_t client = (connection_t)calloc(1, sizeof(client));
+    while (connection_accept((connection_t)args, client))
     {
         log_info("Connection Successful!");
     }
@@ -40,21 +40,21 @@ void *_server_thread(void *args)
     return NULL;
 }
 
-int _start_server(server_t server)
+int _start_server(connection_t server)
 {
-    if (server_status(server) == LISTENING)
+    if (connection_status(server) == LISTENING)
     {
         printf("Server is already active\n");
         return 1;
     }
 
-    server_start(server);
+    connection_listen(server, 1);
 
     pthread_create(&s_shared.server_pid, NULL, _server_thread, server);
     return 1;
 }
 
-int _stop_server(server_t server)
+int _stop_server(connection_t server)
 {
     if (!server)
     {
@@ -62,7 +62,7 @@ int _stop_server(server_t server)
         return 0;
     }
 
-    if (is_listening(server)) server_stop(server);
+    if (is_listening(server)) connection_stop(server);
 
     pthread_join(s_shared.server_pid, NULL);
     return 1;
@@ -72,13 +72,13 @@ void *_client_thread(void *args)
 {
     log_debug("Client Thread Start");
 
-    connection_connect((client_t)args, s_shared.server);
+    connection_connect((connection_t)args, s_shared.server);
     log_debug("Client Thread End");
 
     return NULL;
 }
 
-void _add_client(client_t *clients)
+void _add_client(connection_t *clients)
 {
     if (s_shared.client_count >= MAX_CLIENTS) return;
     clients[s_shared.client_count] = connection_init(PORT_NR);
@@ -90,7 +90,7 @@ void _add_client(client_t *clients)
     s_shared.client_count++;
 }
 
-void _del_client(client_t *clients)
+void _del_client(connection_t *clients)
 {
     if (s_shared.client_count <= 0) return;
     connection_destroy(clients[s_shared.client_count - 1]);
@@ -99,7 +99,7 @@ void _del_client(client_t *clients)
     s_shared.client_count--;
 }
 
-int _stop(server_t server, client_t *clients)
+int _stop(connection_t server, connection_t *clients)
 {
     _stop_server(server);
 
@@ -110,7 +110,7 @@ int _stop(server_t server, client_t *clients)
     }
 }
 
-void _print_status(server_t server, client_t *clients)
+void _print_status(connection_t server, connection_t *clients)
 {
     pthread_mutex_lock(&s_shared.mutex);
 
@@ -118,7 +118,7 @@ void _print_status(server_t server, client_t *clients)
 
     if (server)
     {
-        switch (server_status(server))
+        switch (connection_status(server))
         {
         case OFFLINE   : state_buffer = "Offline"; break;
         case READY     : state_buffer = "Ready"; break;
@@ -138,7 +138,7 @@ void _print_status(server_t server, client_t *clients)
     pthread_mutex_unlock(&s_shared.mutex);
 }
 
-int _process_request(enum request_t request, server_t server, client_t *clients)
+int _process_request(enum request_t request, connection_t server, connection_t *clients)
 {
     switch (request)
     {
@@ -160,13 +160,13 @@ int _process_request(enum request_t request, server_t server, client_t *clients)
 
 void init()
 {
-    server_t server = connection_init(PORT_NR);
+    connection_t server = connection_init(PORT_NR);
 
     connection_bind(server);
 
     s_shared.server = server;
     // Create list of clients
-    client_t clients[MAX_CLIENTS];
+    connection_t clients[MAX_CLIENTS];
     s_shared.client_count = 0;
 
     s_shared.client_pids = malloc(sizeof(pthread_t) * MAX_CLIENTS);

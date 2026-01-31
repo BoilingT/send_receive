@@ -21,6 +21,8 @@ int connection_connect(connection_t host, connection_t peer);
 
 int connection_fd(connection_t connection);
 
+connection_state_t connection_status(connection_t connection);
+
 int is_offline(connection_t connection);
 int is_ready(connection_t connection);
 int is_listening(connection_t connection);

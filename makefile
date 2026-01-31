@@ -5,7 +5,7 @@ server = server/
 client = client/
 flag = -g
 
-main: main.o server.o client.o send_recieve.o ui.o log_manager.o connection.o
+main: main.o send_recieve.o ui.o log_manager.o connection.o
 	gcc $(out)main.o $(out)connection.o $(out)server.o $(out)client.o $(out)send_recieve.o $(out)ui.o $(out)log_manager.o -o $(out)application $(flag)
 
 main.o: main.c

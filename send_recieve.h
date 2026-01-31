@@ -3,9 +3,8 @@
 
 #include <pthread.h>
 
+#include "connection.h"
 #include "ui.h"
-#include "server/server.h"
-#include "client/client.h"
 
 #define MAX_CLIENTS 10
 

@@ -147,6 +147,12 @@ int connection_connect(connection_t host, connection_t peer)
     }
 }
 
+connection_state_t connection_status(connection_t connection)
+{
+    if (!connection) return OFFLINE;
+    return connection->state;
+}
+
 int connection_fd(connection_t connection)
 {
     return connection->fd;
