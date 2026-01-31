@@ -70,11 +70,11 @@ int connection_destroy(connection_t connection)
 
     connection->state = OFFLINE;
 
-    log_info("Server: Socket (%d) has been closed", connection->fd);
+    log_info("Socket (%d) has been closed", connection->fd);
 
     free(connection);
 
-    log_info("Server: Server has been destroyed");
+    log_info("Server has been destroyed");
 
     return 1;
 }
@@ -83,19 +83,19 @@ int connection_bind(connection_t connection)
 {
     if (!is_offline(connection))
     {
-        log_info("Server is already active");
+        log_info("Connection is already active");
         return 0;
     }
 
     int result = bind(connection->fd, (struct sockaddr *)&connection->addr_in, sizeof(connection->addr_in));
     if (result < 0)
     {
-        log_error("Server: Socket could not be bound, fd: %d", connection->fd);
+        log_error("Socket could not be bound, fd: %d", connection->fd);
         perror("Reason");
         return 0;
     }
 
-    log_info("Server: Socket has been bound");
+    log_info("Socket has been bound");
 
     connection->state = READY;
 
@@ -107,12 +107,12 @@ int connection_listen(connection_t connection, int connection_requests)
     int result = listen(connection->fd, connection_requests);
     if (result == -1)
     {
-        log_warn("Server: Could not accept connection");
+        log_warn("Could not accept connection");
         perror("Reason");
         return 0;
     }
 
-    log_info("Server: Socket is listening");
+    log_info("Socket is listening");
 
     connection->state = LISTENING;
 

@@ -17,7 +17,7 @@ int read_int()
     4. Stop Client <nr>
     5. Shutdown
 */
-void _print_options()
+void print_options()
 {
     for (int i = 0; i < OPTIONS; i++)
     {

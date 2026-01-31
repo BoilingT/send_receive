@@ -19,6 +19,6 @@ enum request_t
 };
 
 int  read_int();
-void _print_options();
+void print_options();
 
 #endif

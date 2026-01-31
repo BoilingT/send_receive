@@ -142,7 +142,7 @@ int _process_request(enum request_t request, server_t server, client_t *clients)
 {
     switch (request)
     {
-    case MENU         : _print_options(); break;
+    case MENU         : print_options(); break;
     case START_SERVER : _start_server(server); break;
     case STOP_SERVER  : _stop_server(server); break;
     case ADD_CLIENT   : _add_client(clients); break;
@@ -169,21 +169,19 @@ void init()
     client_t clients[MAX_CLIENTS];
     s_shared.client_count = 0;
 
-    s_shared.client_pids = malloc(sizeof(int) * MAX_CLIENTS);
+    s_shared.client_pids = malloc(sizeof(pthread_t) * MAX_CLIENTS);
     s_shared.server_pid  = 0;
 
     pthread_mutex_init(&s_shared.mutex, NULL);
 
     enum request_t request = STOP;
 
-    _print_options();
+    print_options();
 
     do
     {
-        // pthread_mutex_lock(&s_shared.mutex);
         _print_status(server, clients);
         printf("\nOperation <nr>: ");
-        // pthread_mutex_unlock(&s_shared.mutex);
         request = read_int() - 1;
         printf("\n");
 
